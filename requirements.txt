@@ -1,0 +1,41 @@
+# Django e componentes principais
+Django==4.2.7
+django-crispy-forms==2.0
+crispy-bootstrap5==0.7
+django-widget-tweaks==1.4.12
+django-filter==23.2
+
+# Banco de dados
+psycopg2-binary==2.9.7  # Para PostgreSQL
+
+# Para processamento de tarefas assíncronas
+celery==5.3.4
+redis==5.0.1
+django-celery-beat==2.5.0
+
+# Integração com Google Calendar
+google-api-python-client==2.97.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==1.0.0
+
+# Utilitários
+python-dateutil==2.8.2
+Pillow==10.0.1  # Para processamento de imagens
+phonenumbers==8.13.18  # Para validação de números de telefone
+whitenoise==6.5.0  # Para servir arquivos estáticos
+
+# Segurança
+django-axes==6.1.1  # Para proteção contra ataques de força bruta
+
+# Exportação de dados
+openpyxl==3.1.2  # Para exportação Excel
+weasyprint==60.1  # Para geração de PDF
+
+# Desenvolvimento e testes
+pytest==7.4.2
+pytest-django==4.5.2
+coverage==7.3.2
+django-debug-toolbar==4.2.0
+
+# Produção
+gunicorn==21.2.0

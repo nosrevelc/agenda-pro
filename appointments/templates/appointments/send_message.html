@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enviar Mensagem - Agenda Pro{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'appointment_list' %}">Agendamentos</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'appointment_detail' appointment.id %}">Detalhes</a></li>
+                <li class="breadcrumb-item active">Enviar Mensagem</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">Enviar Mensagem</h1>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Detalhes do Agendamento -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-check me-1"></i>Detalhes do Agendamento
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="fw-bold">Cliente:</label>
+                    <div>{{ appointment.client.name }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Telefone:</label>
+                    <div>{{ appointment.client.phone }}</div>
+                </div>
+                {% if appointment.client.email %}
+                <div class="mb-3">
+                    <label class="fw-bold">E-mail:</label>
+                    <div>{{ appointment.client.email }}</div>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <label class="fw-bold">Data:</label>
+                    <div>{{ appointment.date|date:"d/m/Y" }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Horário:</label>
+                    <div>{{ appointment.start_time|time:"H:i" }} - {{ appointment.end_time|time:"H:i" }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Serviço:</label>
+                    <div>{{ appointment.service.name }}</div>
+                </div>
+                <div>
+                    <label class="fw-bold">Profissional:</label>
+                    <div>{{ appointment.professional }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-1"></i>Ajuda
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">Você pode usar os seguintes códigos nas suas mensagens:</p>
+                <ul class="small">
+                    <li><code>{nome}</code> - Nome do cliente</li>
+                    <li><code>{telefone}</code> - Telefone do cliente</li>
+                    <li><code>{email}</code> - E-mail do cliente</li>
+                    <li><code>{data}</code> - Data do agendamento</li>
+                    <li><code>{hora}</code> - Hora de início</li>
+                    <li><code>{hora_fim}</code> - Hora de término</li>
+                    <li><code>{servico}</code> - Nome do serviço</li>
+                    <li><code>{valor}</code> - Valor do serviço</li>
+                    <li><code>{duracao}</code> - Duração do serviço</li>
+                    <li><code>{profissional}</code> - Nome do profissional</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Formulário de Mensagem -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-paper-plane me-1"></i>Enviar Mensagem
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="messageForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Modelo de Mensagem</label>
+                        <select class="form-select" id="template" name="template">
+                            <option value="">Selecione um modelo ou escreva uma mensagem personalizada</option>
+                            {% for template in templates %}
+                            <option value="{{ template.id }}" {% if selected_template and selected_template.id == template.id %}selected{% endif %}>
+                                {{ template.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="channel" class="form-label">Canal de Comunicação</label>
+                        <div class="btn-group w-100" role="group">
+                            {% if 'whatsapp' in channels %}
+                            <input type="radio" class="btn-check" name="channel" id="channel-whatsapp" value="whatsapp" 
+                                  {% if preferred_channel == 'whatsapp' %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="channel-whatsapp">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </label>
+                            {% endif %}
+                            
+                            {% if 'sms' in channels %}
+                            <input type="radio" class="btn-check" name="channel" id="channel-sms" value="sms"
+                                  {% if preferred_channel == 'sms' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary" for="channel-sms">
+                                <i class="fas fa-sms me-1"></i>SMS
+                            </label>
+                            {% endif %}
+                            
+                            {% if 'email' in channels %}
+                            <input type="radio" class="btn-check" name="channel" id="channel-email" value="email"
+                                  {% if preferred_channel == 'email' %}checked{% endif %}>
+                            <label class="btn btn-outline-info" for="channel-email">
+                                <i class="fas fa-envelope me-1"></i>E-mail
+                            </label>
+                            {% endif %}
+                            
+                            {% if 'call' in channels %}
+                            <input type="radio" class="btn-check" name="channel" id="channel-call" value="call"
+                                  {% if preferred_channel == 'call' %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="channel-call">
+                                <i class="fas fa-phone me-1"></i>Ligação
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Conteúdo da Mensagem</label>
+                        <textarea class="form-control" id="content" name="content" rows="8" required>{{ message_content }}</textarea>
+                        <div class="form-text">
+                            <span id="charCount">0</span> caracteres
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <a href="{% url 'appointment_detail' appointment.id %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-1"></i>Enviar Mensagem
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Contador de caracteres
+        function updateCharCount() {
+            const count = $('#content').val().length;
+            $('#charCount').text(count);
+        }
+        
+        // Inicializar contador
+        updateCharCount();
+        
+        // Atualizar contador ao digitar
+        $('#content').on('input', updateCharCount);
+        
+        // Carregar conteúdo do template ao selecionar
+        $('#template').change(function() {
+            const templateId = $(this).val();
+            
+            if (!templateId) {
+                $('#content').val('');
+                updateCharCount();
+                return;
+            }
+            
+            // Fazer requisição AJAX para obter o conteúdo do template
+            $.ajax({
+                url: '{% url "get_template_content" %}',
+                data: {
+                    'template_id': templateId,
+                    'appointment_id': '{{ appointment.id }}'
+                },
+                dataType: 'json',
+                success: function(data) {
+                    $('#content').val(data.content);
+                    updateCharCount();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao carregar template:', error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
