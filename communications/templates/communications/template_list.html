@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modelos de Mensagens - Agenda Pro{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">Modelos de Mensagens</h1>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'message_template_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Novo Modelo
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-envelope-open-text me-1"></i>Modelos Disponíveis
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0 datatable">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Conteúdo</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for template in templates %}
+                    <tr>
+                        <td>{{ template.name }}</td>
+                        <td>
+                            {% if template.message_type == 'confirmation' %}
+                            <span class="badge bg-success">Confirmação</span>
+                            {% elif template.message_type == 'reminder' %}
+                            <span class="badge bg-info">Lembrete</span>
+                            {% elif template.message_type == 'thank_you' %}
+                            <span class="badge bg-primary">Agradecimento</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Personalizada</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-truncate" style="max-width: 300px;">{{ template.content }}</td>
+                        <td>
+                            {% if template.is_active %}
+                            <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'message_template_detail' template.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'message_template_edit' template.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-id="{{ template.id }}" data-name="{{ template.name }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-3">
+                            <em>Nenhum modelo de mensagem cadastrado</em>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o modelo <strong id="templateName"></strong>?</p>
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Inicializar DataTables
+        $('.datatable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.5/i18n/pt-BR.json'
+            },
+            pageLength: 10,
+            order: [[0, 'asc']]
+        });
+        
+        // Manipulador de exclusão
+        $('.delete-btn').click(function() {
+            const templateId = $(this).data('id');
+            const templateName = $(this).data('name');
+            
+            $('#templateName').text(templateName);
+            $('#deleteForm').attr('action', '/messages/templates/' + templateId + '/delete/');
+            
+            $('#deleteModal').modal('show');
+        });
+        
+        // Manipulador de confirmação
+        $('#confirmDelete').click(function() {
+            $('#deleteForm').submit();
+        });
+    });
+</script>
+{% endblock %}

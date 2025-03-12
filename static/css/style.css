@@ -1,0 +1,14 @@
+/* Estilos globais */
+body {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Melhorias de UI */
+.card {
+    margin-bottom: 20px;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}

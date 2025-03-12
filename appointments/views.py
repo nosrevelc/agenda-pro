@@ -17,7 +17,60 @@ from communications.models import MessageTemplate, SentMessage
 from communications.utils import prepare_message_content, get_deeplink_url
 
 @login_required
+@login_required
 def appointment_list(request):
+    # Filtragem por parâmetros
+    status_filter = request.GET.get('status', '')
+    date_filter = request.GET.get('date', '')
+    professional_filter = request.GET.get('professional', '')
+    
+    # Query base
+    appointments = Appointment.objects.all()
+    
+    # Aplicar filtros
+    if status_filter:
+        appointments = appointments.filter(status=status_filter)
+    
+    if date_filter:
+        try:
+            filter_date = timezone.datetime.strptime(date_filter, '%Y-%m-%d').date()
+            appointments = appointments.filter(date=filter_date)
+        except ValueError:
+            pass
+    
+    if professional_filter:
+        appointments = appointments.filter(professional_id=professional_filter)
+    
+    # Separar em agendamentos para hoje, futuros e passados
+    today = timezone.now().date()
+    
+    # Agendamentos de hoje
+    today_appointments = appointments.filter(date=today).order_by('start_time')
+    
+    future_appointments = appointments.filter(
+        Q(date__gt=today) | Q(date=today, start_time__gt=timezone.now().time())
+    ).order_by('date', 'start_time')
+    
+    past_appointments = appointments.filter(
+        Q(date__lt=today) | Q(date=today, start_time__lte=timezone.now().time())
+    ).order_by('-date', '-start_time')
+    
+    # Dados para filtros
+    professionals = Professional.objects.filter(is_active=True)
+    status_choices = Appointment.STATUS_CHOICES
+    
+    context = {
+        'today_appointments': today_appointments,  # Adicione esta linha
+        'future_appointments': future_appointments,
+        'past_appointments': past_appointments,
+        'professionals': professionals,
+        'status_choices': status_choices,
+        'status_filter': status_filter,
+        'date_filter': date_filter,
+        'professional_filter': professional_filter,
+    }
+    
+    return render(request, 'appointments/appointment_list.html', context)
     # Filtragem por parâmetros
     status_filter = request.GET.get('status', '')
     date_filter = request.GET.get('date', '')
