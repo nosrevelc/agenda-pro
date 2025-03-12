@@ -1,10 +1,8 @@
-# agenda_sys/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from django.views.generic import TemplateView
 
 from accounts.views import dashboard, profile
 from appointments.views import (
@@ -39,7 +37,7 @@ urlpatterns = [
     path('reports/', include('reports.urls')),
     
     # Appointments URLs
-    path('appointments/', appointment_list, name='appointment_list'),
+    path('appointments/', appointment_list, name='appointment_list'),  # Lista de agendamentos
     path('appointments/new/', appointment_create, name='appointment_create'),
     path('appointments/<int:appointment_id>/', appointment_detail, name='appointment_detail'),
     path('appointments/<int:appointment_id>/edit/', appointment_edit, name='appointment_edit'),

@@ -39,3 +39,6 @@ django-debug-toolbar==4.2.0
 
 # Produção
 gunicorn==21.2.0
+
+#Validação de formulários
+phonenumbers==8.13.27  # Use a versão atual

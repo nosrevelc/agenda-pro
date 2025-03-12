@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-{% if client %}Editar Cliente{% else %}Novo Cliente{% endif %} - Agenda Pro
+    {% if client %}Editar Cliente{% else %}Novo Cliente{% endif %} - Agenda Pro
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,9 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'client_list' %}">Clientes</a></li>
-                <li class="breadcrumb-item active">{% if client %}Editar Cliente{% else %}Novo Cliente{% endif %}</li>
+                <li class="breadcrumb-item active">
+                    {% if client %}Editar Cliente{% else %}Novo Cliente{% endif %}
+                </li>
             </ol>
         </nav>
     </div>
@@ -19,7 +21,9 @@
 
 <div class="row mb-4">
     <div class="col-md-8">
-        <h1 class="h3 mb-0">{% if client %}Editar Cliente{% else %}Novo Cliente{% endif %}</h1>
+        <h1 class="h3 mb-0">
+            {% if client %}Editar Cliente{% else %}Novo Cliente{% endif %}
+        </h1>
     </div>
     <div class="col-md-4 text-md-end">
         <a href="{% url 'client_list' %}" class="btn btn-secondary">
@@ -41,11 +45,11 @@
                     {% csrf_token %}
                     
                     {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
                     {% endif %}
                     
                     <div class="row mb-3">
@@ -53,24 +57,26 @@
                             <label for="{{ form.name.id_for_label }}" class="form-label">Nome</label>
                             {{ form.name }}
                             {% if form.name.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.name.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
                             {% endif %}
                         </div>
                         <div class="col-md-6">
                             <label for="{{ form.phone.id_for_label }}" class="form-label">Telefone</label>
                             {{ form.phone }}
                             {% if form.phone.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.phone.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.phone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
                             {% endif %}
-                            <div class="form-text">Digite um número no formato: (XX) XXXXX-XXXX</div>
+                            <div class="form-text">
+                                Digite o número com código do país. Ex: +55 (11) 99999-9999
+                            </div>
                         </div>
                     </div>
                     
@@ -79,11 +85,11 @@
                             <label for="{{ form.email.id_for_label }}" class="form-label">E-mail</label>
                             {{ form.email }}
                             {% if form.email.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.email.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
                             {% endif %}
                         </div>
                         <div class="col-md-6">
@@ -92,29 +98,29 @@
                             </label>
                             {{ form.preferred_communication }}
                             {% if form.preferred_communication.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.preferred_communication.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.preferred_communication.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
                             {% endif %}
                         </div>
                     </div>
                     
                     {% if client %}
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                {{ form.is_blacklisted }}
-                                <label class="form-check-label" for="{{ form.is_blacklisted.id_for_label }}">
-                                    Marcar como lista negra
-                                </label>
-                            </div>
-                            <div class="form-text text-danger">
-                                Clientes na lista negra não podem realizar novos agendamentos.
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    {{ form.is_blacklisted }}
+                                    <label class="form-check-label" for="{{ form.is_blacklisted.id_for_label }}">
+                                        Marcar como lista negra
+                                    </label>
+                                </div>
+                                <div class="form-text text-danger">
+                                    Clientes na lista negra não podem realizar novos agendamentos.
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endif %}
                     
                     <div class="text-end">
@@ -135,8 +141,12 @@
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-        // Aplicar máscara para o telefone
-        $('#{{ form.phone.id_for_label }}').mask('(00) 00000-0000');
+        // Máscara para números internacionais
+        $('#{{ form.phone.id_for_label }}').mask('+00 (00) 00000-0000', {
+            translation: {
+                '0': {pattern: /[0-9]/}
+            }
+        });
     });
 </script>
 {% endblock %}
